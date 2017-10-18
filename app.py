@@ -6,8 +6,7 @@ import random
 import sys
 from datetime import datetime,timedelta
 from config import config;
-
-
+import serial 
 
 inv_date = '2017-10-07'
 time_begin = '16:30'
@@ -31,7 +30,7 @@ def get_car_no():
     car_no = random.sample(alpha,n)+random.sample(number,m)
     random.shuffle(car_no)
     # print(car_no)
-    return '辽A.' + ''.join(car_no)
+    return '{}A.' + ''.join(car_no)
 
 
 def get_comany():
@@ -78,27 +77,23 @@ def get_end_time(begin_time,seconds):
     ctime = datetime.strptime(begin_time,'%H:%M')
     return (ctime + timedelta(seconds = seconds)).strftime("%H:%M")
 
-wait_time = "00:%02d:%02d"%(random.uniform(0,2),random.uniform(0,59))
 
+
+wait_time = "00:%02d:%02d"%(random.uniform(0,2),random.uniform(0,59))
 mile = get_mile(cost)
-cost = 8
-print('%d:'%cost,get_mile(cost),get_time(get_mile(cost)))  
 cost = 9
-print('%d:'%cost,get_mile(cost),get_time(get_mile(cost)))    
-# cost = 10
-# print('%d:'%cost,get_mile(cost),get_time(get_mile(cost)))     
-# cost = 500
-# print('%d:'%cost,get_mile(cost),get_time(get_mile(cost)))   
 time_end = get_end_time(time_begin,get_time(get_mile(cost)))
-print('''%11s
-%10s
-%10s
-%10s
-%10s
-%10s
-%10s
-%10s
-%10s
-%10.2f
-'''%(car_no,company,telephone,inv_date,time_begin,time_end,config.get('day_price',1.82),
-    mile,wait_time,cost))
+
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+
+ser.write([27,64])             #ESC @
+ser.write([27,99,0])           #ESC c 0
+# s = "\n".join([car_no,company,telephone,inv_date,time_begin,time_end,config.get('day_price',1.82),
+#     mile,wait_time,cost])
+
+for s in [ str(s).encode("ascii") for s in [car_no,company,telephone,inv_date,
+    time_begin,time_end,config.get('day_price',1.82),mile,wait_time,cost]]:
+    print(s)
+    ser.write(s+b"\n")
+
+ser.write(b"\n")
