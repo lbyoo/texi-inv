@@ -8,13 +8,13 @@ from datetime import datetime,timedelta
 from config import config;
 import serial 
 
-inv_date = '2017-10-07'
+inv_date = '2017-10-12'
 time_begin = '16:30'
-time_end = '16:35'
+# time_end = '16:35'
 price = config.get('day_price',1.82)
-mile = 2.7
-wait_time = '00:00:00'
-cost = 9
+# mile = 2.7
+# wait_time = '00:00:00'
+cost = 260
 
 
 '''
@@ -34,11 +34,11 @@ def get_car_no():
 
 
 def get_comany():
-    return random.sample(['0103','0102','0101'],1)[0]    
+    return random.sample(['10703','10724','10723','10745'],1)[0]    
 
 
 def get_telephone():
-    pre = ['22','23','24','25','26','27','28']
+    pre = ['22','23','24','25','26','27','28','88']
     return random.sample(pre,1)[0] + ''.join([str(random.randint(0,9)) for x in range(0,6)])
 
 
@@ -81,19 +81,31 @@ def get_end_time(begin_time,seconds):
 
 wait_time = "00:%02d:%02d"%(random.uniform(0,2),random.uniform(0,59))
 mile = get_mile(cost)
-cost = 9
+# cost = 9
 time_end = get_end_time(time_begin,get_time(get_mile(cost)))
 
+ESC=27
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+ser.write([ESC,64])             #ESC @
+ser.write([ESC,99,0])           #ESC c 0
+#defind liao
+ser.write([ESC,ord('&'),ord('{'),0x00,0x21,0xa1,0xa2,0x7e,0x02 ])
+ser.write([ESC,ord('&'),ord('}'),0x81,0x85,0xbf,0xc1,0x81,0x00 ])
+ser.write([ESC,ord('%'),ord('{'),ord('{'),ord('}'),ord('}'),0])
+#设置行间距 6点
+ser.write([ESC,ord('1'),5])   
 
-ser.write([27,64])             #ESC @
-ser.write([27,99,0])           #ESC c 0
-# s = "\n".join([car_no,company,telephone,inv_date,time_begin,time_end,config.get('day_price',1.82),
-#     mile,wait_time,cost])
 
-for s in [ str(s).encode("ascii") for s in [car_no,company,telephone,inv_date,
-    time_begin,time_end,config.get('day_price',1.82),mile,wait_time,cost]]:
-    print(s)
-    ser.write(s+b"\n")
+ser.write(b"       " + car_no.encode("ascii") + b"\n")
+ser.write(b"           " + company.encode("ascii") + b"\n")
+ser.write(b"        " + telephone.encode("ascii") + b"\n")
+ser.write(b"      " + inv_date.encode("ascii") + b"\n")
+ser.write(b"           " + time_begin.encode("ascii") + b"\n")
+ser.write(b"           " + time_end.encode("ascii") + b"\n")
+ser.write(b"          " + str(config.get('day_price',1.82)).encode("ascii") + b"\n")
+ser.write(b"         " + str(mile).encode("ascii") + b"\n")
+ser.write(b"        " + wait_time.encode("ascii") + b"\n")
+ser.write(b"          " + ("%0.2f"%cost).encode("ascii") + b"\n")
 
-ser.write(b"\n")
+# ser.write(b"\n")
+ser.write([ESC,ord(':')])
