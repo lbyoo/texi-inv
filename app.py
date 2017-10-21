@@ -31,7 +31,7 @@ def get_car_no():
     car_no = random.sample(alpha,n)+random.sample(number,m)
     random.shuffle(car_no)
     # print(car_no)
-    return '{}A.' + ''.join(car_no)
+    return '{}A,' + ''.join(car_no)
 
 
 def get_comany():
