@@ -7,6 +7,7 @@ import sys
 from datetime import datetime,timedelta
 from config import config;
 import serial 
+from font_1 import *
 
 inv_date = '2017-10-12'
 time_begin = '16:30'
@@ -86,12 +87,12 @@ time_end = get_end_time(time_begin,get_time(get_mile(cost)))
 
 ESC=27
 ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-ser.write([ESC,64])             #ESC @
-ser.write([ESC,99,0])           #ESC c 0
+ser.write([ESC,64])             #ESC @   init the printer
+ser.write([ESC,99,0])           #ESC c 0 reverse the direction
 #defind liao
-ser.write([ESC,ord('&'),ord('{'),0x00,0x21,0xa1,0xa2,0x7e,0x02 ])
-ser.write([ESC,ord('&'),ord('}'),0x81,0x85,0xbf,0xc1,0x81,0x00 ])
-ser.write([ESC,ord('%'),ord('{'),ord('{'),ord('}'),ord('}'),0])
+for k in d:
+    ser.write([ESC,ord('&'),ord(k)] + calc_hex(d[k]))
+    ser.write([ESC,ord('%'),ord(k),ord(k),0]) 
 #设置行间距 6点
 ser.write([ESC,ord('1'),5])   
 
@@ -106,6 +107,5 @@ ser.write(b"          " + str(config.get('day_price',1.82)).encode("ascii") + b"
 ser.write(b"         " + str(mile).encode("ascii") + b"\n")
 ser.write(b"        " + wait_time.encode("ascii") + b"\n")
 ser.write(b"          " + ("%0.2f"%cost).encode("ascii") + b"\n")
-
-# ser.write(b"\n")
+# ser.write(b"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-;,.{}\n")
 ser.write([ESC,ord(':')])
