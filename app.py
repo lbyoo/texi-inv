@@ -9,13 +9,13 @@ from config import config;
 import serial 
 from font_1 import *
 
-inv_date = '2017-09-28'
-time_begin = '21:01'
+inv_date = '2018-08-20'
+time_begin = '03:30'
 # time_end = '16:35'
 price = config.get('day_price',1.82)
 # mile = 2.7
-wait_time = '00:00:00'
-cost = 32
+wait_time = '00:02:07'
+cost = 36
 
 
 '''
@@ -95,7 +95,8 @@ mile = get_mile(cost)
 time_end = get_end_time(time_begin,get_time(get_mile(cost)))
 
 ESC=27
-ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+# ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+ser = serial.Serial('COM4', 9600, timeout=1)
 printer_init()
 
 
@@ -111,4 +112,5 @@ ser.write(b"          " + ("%0.2f"%config.get('day_price',1.82)).encode("ascii")
 ser.write(b"         " + ("%0.1f"%mile).encode("ascii") + b"\n")
 ser.write(b"        " + wait_time.encode("ascii") + b"\n")
 ser.write(b"          " + ("%0.2f"%cost).encode("ascii") + b"\n")
+ser.write(b" \n")
 # ser.write(b"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-;,.{}\n")
